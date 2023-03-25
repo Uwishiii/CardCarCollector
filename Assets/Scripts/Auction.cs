@@ -7,6 +7,7 @@ public class Auction : MonoBehaviour
 {
     public List<GameObject> carList = new List<GameObject>();
     public List<GameObject> carPosList = new List<GameObject>();
+    public List<GameObject> auctionCars = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
@@ -24,12 +25,12 @@ public class Auction : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             int randomCar = Random.Range(0, carList.Count);
-            int randomCarPos = Random.Range(0, carPosList.Count);
 
-            carList[randomCar].transform.position = carPosList[randomCarPos].transform.position;
+            //auctionCars.Add(carList[randomCar]);
+
+            carList[randomCar].transform.position = carPosList[i].transform.position;
 
             carList.Remove(carList[randomCar]);
-            carPosList.Remove(carPosList[randomCarPos]);
         }
     }
 
