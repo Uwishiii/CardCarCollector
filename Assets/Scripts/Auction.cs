@@ -13,21 +13,33 @@ public class Auction : MonoBehaviour
     private List<GameObject> carBoughtPosList = new List<GameObject>();
     [SerializeField] public GameObject gameCamera;
     [SerializeField] public GameObject gameCameraPosRight;
+    [SerializeField] public GameObject gameCameraPosLeft;
     private float timeLeft;
-    
+    [SerializeField] private CurrentPoints pointsScript;
+    private int points;
+    private int cost;
+    public TextMeshProUGUI leftText;
+    public TextMeshProUGUI middleText;
+    public TextMeshProUGUI rightText;
+    //change cost list back to private when done
+    public List<int> costList = new List<int>();
+    private List<TextMeshProUGUI> costTextslist = new List<TextMeshProUGUI>();
+
+
     // Start is called before the first frame update
     private void Start()
     {
         InitiateLists();
-
         CarPositioner();
+        CostGenerator();
+        CostShowcase();
     }
 
     // Update is called once per frame
     private void Update()
     {
         CarSelector();
-        
+
         //CameraMove(gameCameraPosRight.transform.position, gameCameraPosRight.transform.rotation, 3);
     }
 
@@ -54,16 +66,16 @@ public class Auction : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             int randomCar = Random.Range(0, carList.Count);
-
             carList[randomCar].transform.position = carPosList[i].transform.position;
-
             carList.Remove(carList[randomCar]);
         }
     }
 
     private void CarSelector()
     {
-        if (Input.GetMouseButtonDown(0)) {
+        points = pointsScript.points;
+        
+        if (Input.GetMouseButtonDown(0) && points >= cost) {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
@@ -74,28 +86,57 @@ public class Auction : MonoBehaviour
                     hit.transform.position = carBoughtPosList[randomCarBoughtPos].transform.position;
                     hit.transform.rotation *= Quaternion.Euler(90, 0, 0);
                     carBoughtPosList.Remove(carBoughtPosList[randomCarBoughtPos]);
+                    pointsScript.points -= 3;
                 }
         }
     }
-    
-    IEnumerator CameraMove2(int timeInSeconds)
-    {
-        while (timeLeft >= 0.0f)
-        {
-            gameCamera.transform.position = Vector3.Lerp(gameCamera.transform.position, gameCameraPosRight.transform.position, Time.deltaTime * timeInSeconds);
-            gameCamera.transform.rotation = Quaternion.Slerp(gameCamera.transform.rotation, gameCameraPosRight.transform.rotation, Time.deltaTime * timeInSeconds);
 
-            Debug.Log(timeLeft);
+    private void CostGenerator()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            cost = Random.Range(0, 50);
+            costList.Add(cost);
+        }
+        costTextslist.Add(leftText);
+        costTextslist.Add(middleText);
+        costTextslist.Add(rightText);
+    }
+
+    private void CostShowcase()
+    {
+        for (int i = 0; i < costList.Count; i++)
+        {
+            TextMeshProUGUI costTexts = costTextslist[i].GetComponent<TextMeshProUGUI>();
+            costTexts.text = costList[i].ToString();
+        }
+    }
+    
+    IEnumerator CameraMove2(int timeInSeconds, Quaternion desiredRotation, Vector3 desiredPosition)
+    {
+        while (gameCamera.transform.position != desiredPosition && gameCamera.transform.rotation != desiredRotation)
+        {
+            gameCamera.transform.position = Vector3.Lerp(gameCamera.transform.position, desiredPosition, Time.deltaTime * timeInSeconds);
+            gameCamera.transform.rotation = Quaternion.Slerp(gameCamera.transform.rotation, desiredRotation, Time.deltaTime * timeInSeconds);
+
+            //Debug.Log(timeLeft);
             timeLeft -= Time.deltaTime;
             
             yield return null;
         }
     }
 
-    public void CameraMove()
+    public void CameraMoveRight()
     {
         timeLeft = 3.0f;
-        
-        StartCoroutine(CameraMove2(3));
+        StopAllCoroutines();
+        StartCoroutine(CameraMove2(3, gameCameraPosRight.transform.rotation, gameCameraPosRight.transform.position));
+    }
+    
+    public void CameraMoveLeft()
+    {
+        timeLeft = 3.0f;
+        StopAllCoroutines();
+        StartCoroutine(CameraMove2(3, gameCameraPosLeft.transform.rotation, gameCameraPosLeft.transform.position));
     }
 }
