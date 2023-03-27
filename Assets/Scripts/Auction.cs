@@ -5,44 +5,51 @@ using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using TMPro;
+using Unity.Mathematics;
 
 public class Auction : MonoBehaviour
 {
     private List<GameObject> carList = new List<GameObject>();
     private List<GameObject> carPosList = new List<GameObject>();
     private List<GameObject> carBoughtPosList = new List<GameObject>();
+    
     [SerializeField] public GameObject gameCamera;
     [SerializeField] public GameObject gameCameraPosRight;
     [SerializeField] public GameObject gameCameraPosLeft;
     private float timeLeft;
+
+    [SerializeField] private GameObject leftText;
+    [SerializeField] private GameObject middleText;
+    [SerializeField] private GameObject rightText;
+
     [SerializeField] private CurrentPoints pointsScript;
     private int points;
     private int cost;
-    public TextMeshProUGUI leftText;
-    public TextMeshProUGUI middleText;
-    public TextMeshProUGUI rightText;
-    //change cost list back to private when done
-    public List<int> costList = new List<int>();
-    private List<TextMeshProUGUI> costTextslist = new List<TextMeshProUGUI>();
+    private List<int> costList = new List<int>();
 
-
-    // Start is called before the first frame update
     private void Start()
     {
+        Initiation();
+        
         InitiateLists();
+        
         CarPositioner();
-        CostGenerator();
+        
         CostShowcase();
     }
-
-    // Update is called once per frame
+    
     private void Update()
     {
         CarSelector();
-
-        //CameraMove(gameCameraPosRight.transform.position, gameCameraPosRight.transform.rotation, 3);
     }
 
+    private void Initiation()
+    {
+        leftText.SetActive(true);
+        middleText.SetActive(true);
+        rightText.SetActive(true);
+    }
+    
     private void InitiateLists()
     {
         foreach (GameObject carPos in GameObject.FindGameObjectsWithTag("CarPos"))
@@ -75,41 +82,76 @@ public class Auction : MonoBehaviour
     {
         points = pointsScript.points;
         
-        if (Input.GetMouseButtonDown(0) && points >= cost) {
+        if (Input.GetMouseButtonDown(0/*& && points >= cost*/)) {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit))
                 if (hit.transform != null && hit.transform.gameObject.CompareTag("Car"))
                 {
-                    int randomCarBoughtPos = Random.Range(0, carBoughtPosList.Count);
+                    if (hit.transform.name == "Car 1")
+                    {
+                        cost = costList[0];
+                        
+                        if (points >= cost)
+                        {
+                            int randomCarBoughtPos = Random.Range(0, carBoughtPosList.Count);
                     
-                    hit.transform.position = carBoughtPosList[randomCarBoughtPos].transform.position;
-                    hit.transform.rotation *= Quaternion.Euler(90, 0, 0);
-                    carBoughtPosList.Remove(carBoughtPosList[randomCarBoughtPos]);
-                    pointsScript.points -= 3;
+                            hit.transform.position = carBoughtPosList[randomCarBoughtPos].transform.position;
+                            hit.transform.rotation *= Quaternion.Euler(90, 0, 0);
+                            carBoughtPosList.Remove(carBoughtPosList[randomCarBoughtPos]);
+                            
+                            leftText.SetActive(false);
+                            pointsScript.points -= cost;
+                        }
+                    }
+                    
+                    if (hit.transform.name == "Car 2")
+                    {
+                        cost = costList[1];
+                        
+                        if (points >= cost)
+                        {
+                            int randomCarBoughtPos = Random.Range(0, carBoughtPosList.Count);
+                    
+                            hit.transform.position = carBoughtPosList[randomCarBoughtPos].transform.position;
+                            hit.transform.rotation *= Quaternion.Euler(90, 0, 0);
+                            carBoughtPosList.Remove(carBoughtPosList[randomCarBoughtPos]);
+                            
+                            middleText.SetActive(false);
+                            pointsScript.points -= cost;
+                        }
+                    }
+                    
+                    if (hit.transform.name == "Car 3")
+                    {
+                        cost = costList[2];
+                        
+                        if (points >= cost)
+                        {
+                            int randomCarBoughtPos = Random.Range(0, carBoughtPosList.Count);
+                    
+                            hit.transform.position = carBoughtPosList[randomCarBoughtPos].transform.position;
+                            hit.transform.rotation *= Quaternion.Euler(90, 0, 0);
+                            carBoughtPosList.Remove(carBoughtPosList[randomCarBoughtPos]);
+                            
+                            rightText.SetActive(false);
+                            pointsScript.points -= cost;
+                        }
+                    }
                 }
         }
     }
 
-    private void CostGenerator()
+    private void CostShowcase()
     {
         for (int i = 0; i < 3; i++)
         {
-            cost = Random.Range(0, 50);
-            costList.Add(cost);
+            costList.Add(Random.Range(5, 15));
         }
-        costTextslist.Add(leftText);
-        costTextslist.Add(middleText);
-        costTextslist.Add(rightText);
-    }
 
-    private void CostShowcase()
-    {
-        for (int i = 0; i < costList.Count; i++)
-        {
-            TextMeshProUGUI costTexts = costTextslist[i].GetComponent<TextMeshProUGUI>();
-            costTexts.text = costList[i].ToString();
-        }
+        leftText.GetComponent<TextMeshPro>().text = costList[0].ToString();
+        middleText.GetComponent<TextMeshPro>().text = costList[1].ToString();
+        rightText.GetComponent<TextMeshPro>().text = costList[2].ToString();
     }
     
     IEnumerator CameraMove2(int timeInSeconds, Quaternion desiredRotation, Vector3 desiredPosition)
@@ -118,8 +160,7 @@ public class Auction : MonoBehaviour
         {
             gameCamera.transform.position = Vector3.Lerp(gameCamera.transform.position, desiredPosition, Time.deltaTime * timeInSeconds);
             gameCamera.transform.rotation = Quaternion.Slerp(gameCamera.transform.rotation, desiredRotation, Time.deltaTime * timeInSeconds);
-
-            //Debug.Log(timeLeft);
+            
             timeLeft -= Time.deltaTime;
             
             yield return null;
