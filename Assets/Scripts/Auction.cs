@@ -14,8 +14,9 @@ public class Auction : MonoBehaviour
     private List<GameObject> carBoughtPosList = new List<GameObject>();
     
     [SerializeField] public GameObject gameCamera;
-    [SerializeField] public GameObject gameCameraPosRight;
-    [SerializeField] public GameObject gameCameraPosLeft;
+    [SerializeField] public GameObject gameCameraPosGarage;
+    [SerializeField] public GameObject gameCameraPosAuction;
+    [SerializeField] public GameObject gameCameraPosRaceView;
     private float timeLeft;
 
     [SerializeField] private GameObject leftText;
@@ -167,17 +168,24 @@ public class Auction : MonoBehaviour
         }
     }
 
-    public void CameraMoveRight()
+    public void CameraMoveGarage()
     {
         timeLeft = 3.0f;
         StopAllCoroutines();
-        StartCoroutine(CameraMove2(3, gameCameraPosRight.transform.rotation, gameCameraPosRight.transform.position));
+        StartCoroutine(CameraMove2(3, gameCameraPosGarage.transform.rotation, gameCameraPosGarage.transform.position));
     }
     
-    public void CameraMoveLeft()
+    public void CameraMoveAuction()
     {
         timeLeft = 3.0f;
         StopAllCoroutines();
-        StartCoroutine(CameraMove2(3, gameCameraPosLeft.transform.rotation, gameCameraPosLeft.transform.position));
+        StartCoroutine(CameraMove2(3, gameCameraPosAuction.transform.rotation, gameCameraPosAuction.transform.position));
+    }
+    
+    public void CameraMoveRaceView()
+    {
+        timeLeft = 3.0f;
+        StopAllCoroutines();
+        StartCoroutine(CameraMove2(3, gameCameraPosRaceView.transform.rotation, gameCameraPosRaceView.transform.position));
     }
 }

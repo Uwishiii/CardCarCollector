@@ -8,15 +8,25 @@ using Random = System.Random;
 public class CurrentPoints : MonoBehaviour
 {
     public int points = 0;
-    public TextMeshProUGUI pointsGUI;
+    public TextMeshProUGUI pointsGUIHUD;
+    public TextMeshProUGUI pointsGUIRaceManager;
+    private float period = 0.0f;
+    public int CyberSecurityScore = 1;
     
     private void Update()
     {
-        pointsGUI.text = points.ToString();
+        pointsGUIHUD.text = points.ToString();
+        pointsGUIRaceManager.text = points.ToString();
+        if (period > 2)
+        {
+            addPoints();
+            period = 0;
+        }
+        period += UnityEngine.Time.deltaTime;
     }
     
     public void addPoints()
     {
-        points++;
+        points += 1 * CyberSecurityScore;
     }
 }
