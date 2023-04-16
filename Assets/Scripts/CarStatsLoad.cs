@@ -12,6 +12,8 @@ public class CarStatsLoad : MonoBehaviour
     public CarStats carStats = new CarStats();
     public TrackStats trackStats = new TrackStats();
 
+    public int trackNr;
+
     public void LoadCarsFromJson()
     {
         string filePath = Application.persistentDataPath + "/CarStats.json";
@@ -34,10 +36,10 @@ public class CarStatsLoad : MonoBehaviour
         Debug.Log(trackStats.tracks[1].straights);
     }
 
-    public void RaceCalculation(int trackNr, int carNum1, int carNum2)
+    public void RaceCalculation(int _carNum1)
     {
-        var car1 = carStats.cars[carNum1];
-        var car2 = carStats.cars[carNum2];
+        var car1 = carStats.cars[_carNum1];
+        var car2 = carStats.cars[UnityEngine.Random.Range(0, carStats.cars.Count - 1)];
         var track = trackStats.tracks[trackNr];
 
         float car1StraightResult = ((car1.baseSpeed + (car1.baseAcceleration * 0.5f)) * track.straights);
@@ -48,20 +50,31 @@ public class CarStatsLoad : MonoBehaviour
         float car2StraightResult = ((car2.baseSpeed + (car2.baseAcceleration * 0.5f)) * track.straights);
         float car2TurnResult = ((car2.baseAcceleration + car2.baseHandling + car2.tireQuality) * track.turns);
         float car2RoadResult = ((car2.baseHandling + car2.tireQuality) * track.road);
-        float car2Result = car1StraightResult + car1TurnResult + car1RoadResult;
+        float car2Result = car2StraightResult + car2TurnResult + car2RoadResult;
 
         if (car1Result > car2Result)
         {
-            Debug.Log("Car 1 Wins!");
+            Debug.Log("You Win!");
+            Debug.Log(car1.carModel);
+            Debug.Log(car2.carModel);
         }
         if (car1Result < car2Result)
         {
-            Debug.Log("Car 2 Wins!");
+            Debug.Log("You Lose!");
+            Debug.Log(car1.carModel);
+            Debug.Log(car2.carModel);
         }
         if (Math.Abs(car1Result - car2Result) < 0.1)
         {
             Debug.Log("It's a Tie!");
+            Debug.Log(car1.carModel);
+            Debug.Log(car2.carModel);
         }
+    }
+
+    public void SelectTrack(int _trackNr)
+    {
+        trackNr = _trackNr - 1;
     }
 }
 
