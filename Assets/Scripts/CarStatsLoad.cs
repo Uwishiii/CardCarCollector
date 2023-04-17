@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using WanzyeeStudio.Json;
 
 public class CarStatsLoad : MonoBehaviour
@@ -19,7 +21,13 @@ public class CarStatsLoad : MonoBehaviour
     public GameObject TiedScreen;
     public GameObject CarSelection;
     public GameObject CloseRaceScreen;
-    public Animator WinAnim;
+    public Image WinAnimationImage;
+    
+    public Sprite[] m_SpriteArray;
+    public float m_Speed = .02f;
+    public int m_IndexSprite;
+    Coroutine m_CorotineAnim;
+    bool IsDone;
 
     public void LoadCarsFromJson()
     {
@@ -39,8 +47,8 @@ public class CarStatsLoad : MonoBehaviour
     {
         LoadCarsFromJson();
         LoadTracksFromJson();
-        Debug.Log(carStats.cars[1].carModel);
-        Debug.Log(trackStats.tracks[1].straights);
+        //Debug.Log(carStats.cars[1].carModel);
+        //Debug.Log(trackStats.tracks[1].straights);
     }
 
     public void RaceCalculation(int _carNum1)
@@ -59,32 +67,36 @@ public class CarStatsLoad : MonoBehaviour
         float car2RoadResult = ((car2.baseHandling + car2.tireQuality) * track.road);
         float car2Result = car2StraightResult + car2TurnResult + car2RoadResult;
 
-        if (car1Result > car2Result)
+        int car1ResultFinal = Mathf.RoundToInt(car1Result);
+        int car2ResultFinal = Mathf.RoundToInt(car2Result);
+        
+        if (car1ResultFinal > car2ResultFinal)
         {
             Debug.Log("You Win!");
-            Debug.Log(car1.carModel);
-            Debug.Log(car2.carModel);
+            //Debug.Log(car1.carModel);
+            //Debug.Log(car2.carModel);
             WinScreen.SetActive(true);
             LoseScreen.SetActive(false);
             TiedScreen.SetActive(false);
             CloseRaceScreen.SetActive(true);
-            WinAnim.Play("WinAnim");
+            StartCoroutine(Func_PlayAnimUI(WinAnimationImage));
+            Debug.Log(m_IndexSprite);
         }
-        if (car1Result < car2Result)
+        if (car1ResultFinal < car2ResultFinal)
         {
             Debug.Log("You Lose!");
-            Debug.Log(car1.carModel);
-            Debug.Log(car2.carModel);
+            //Debug.Log(car1.carModel);
+            //Debug.Log(car2.carModel);
             LoseScreen.SetActive(true);
             TiedScreen.SetActive(false);
             WinScreen.SetActive(false);
             CloseRaceScreen.SetActive(true);
         }
-        if (Math.Abs(car1Result - car2Result) < 0.1)
+        if (Math.Abs(car1ResultFinal - car2ResultFinal) < 0.00001)
         {
             Debug.Log("It's a Tie!");
-            Debug.Log(car1.carModel);
-            Debug.Log(car2.carModel);
+            //Debug.Log(car1.carModel);
+            //Debug.Log(car2.carModel);
             TiedScreen.SetActive(true);
             LoseScreen.SetActive(false);
             WinScreen.SetActive(false);
@@ -95,6 +107,37 @@ public class CarStatsLoad : MonoBehaviour
     public void SelectTrack(int _trackNr)
     {
         trackNr = _trackNr - 1;
+    }
+    
+    IEnumerator Func_PlayAnimUI(Image m_Image)
+    {
+        yield return new WaitForSeconds(m_Speed);
+        
+        m_Image.sprite = m_SpriteArray[m_IndexSprite];
+        
+        if (m_IndexSprite == m_SpriteArray.Length - 1)
+        {
+            IsDone = true;
+        }
+        
+        m_IndexSprite += 1;
+        
+        if (m_IndexSprite > m_SpriteArray.Length - 1)
+        {
+            m_IndexSprite = 0;
+            StopCoroutine(Func_PlayAnimUI(m_Image));
+        }
+        
+        if (IsDone == false)
+        {
+            m_CorotineAnim = StartCoroutine(Func_PlayAnimUI(m_Image));
+        }
+    }
+
+    public void IsDoneFalse()
+    {
+        IsDone = false;
+        WinAnimationImage.sprite = m_SpriteArray[0];
     }
 }
 
