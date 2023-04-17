@@ -14,6 +14,13 @@ public class CarStatsLoad : MonoBehaviour
 
     public int trackNr;
 
+    public GameObject WinScreen;
+    public GameObject LoseScreen;
+    public GameObject TiedScreen;
+    public GameObject CarSelection;
+    public GameObject CloseRaceScreen;
+    public Animator WinAnim;
+
     public void LoadCarsFromJson()
     {
         string filePath = Application.persistentDataPath + "/CarStats.json";
@@ -57,18 +64,31 @@ public class CarStatsLoad : MonoBehaviour
             Debug.Log("You Win!");
             Debug.Log(car1.carModel);
             Debug.Log(car2.carModel);
+            WinScreen.SetActive(true);
+            LoseScreen.SetActive(false);
+            TiedScreen.SetActive(false);
+            CloseRaceScreen.SetActive(true);
+            WinAnim.Play("WinAnim");
         }
         if (car1Result < car2Result)
         {
             Debug.Log("You Lose!");
             Debug.Log(car1.carModel);
             Debug.Log(car2.carModel);
+            LoseScreen.SetActive(true);
+            TiedScreen.SetActive(false);
+            WinScreen.SetActive(false);
+            CloseRaceScreen.SetActive(true);
         }
         if (Math.Abs(car1Result - car2Result) < 0.1)
         {
             Debug.Log("It's a Tie!");
             Debug.Log(car1.carModel);
             Debug.Log(car2.carModel);
+            TiedScreen.SetActive(true);
+            LoseScreen.SetActive(false);
+            WinScreen.SetActive(false);
+            CloseRaceScreen.SetActive(true);
         }
     }
 
