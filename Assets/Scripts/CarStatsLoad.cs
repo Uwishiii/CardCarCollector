@@ -22,8 +22,13 @@ public class CarStatsLoad : MonoBehaviour
     public GameObject CarSelection;
     public GameObject CloseRaceScreen;
     public Image WinAnimationImage;
+    public Image LoseAnimationImage;
+    public Image TiedAnimationImage;
     
-    public Sprite[] m_SpriteArray;
+    public Sprite[] WinSpriteArray;
+    public Sprite[] LoseSpriteArray;
+    public Sprite[] TiedSpriteArray;
+    
     public float m_Speed = .02f;
     public int m_IndexSprite;
     Coroutine m_CorotineAnim;
@@ -79,8 +84,8 @@ public class CarStatsLoad : MonoBehaviour
             LoseScreen.SetActive(false);
             TiedScreen.SetActive(false);
             CloseRaceScreen.SetActive(true);
-            StartCoroutine(Func_PlayAnimUI(WinAnimationImage));
-            Debug.Log(m_IndexSprite);
+            StartCoroutine(Func_PlayAnimUI(WinAnimationImage, WinSpriteArray));
+            //Debug.Log(m_IndexSprite);
         }
         if (car1ResultFinal < car2ResultFinal)
         {
@@ -91,6 +96,8 @@ public class CarStatsLoad : MonoBehaviour
             TiedScreen.SetActive(false);
             WinScreen.SetActive(false);
             CloseRaceScreen.SetActive(true);
+            StartCoroutine(Func_PlayAnimUI(LoseAnimationImage, LoseSpriteArray));
+            //Debug.Log(m_IndexSprite);
         }
         if (Math.Abs(car1ResultFinal - car2ResultFinal) < 0.00001)
         {
@@ -101,6 +108,7 @@ public class CarStatsLoad : MonoBehaviour
             LoseScreen.SetActive(false);
             WinScreen.SetActive(false);
             CloseRaceScreen.SetActive(true);
+            StartCoroutine(Func_PlayAnimUI(TiedAnimationImage, TiedSpriteArray));
         }
     }
 
@@ -109,7 +117,7 @@ public class CarStatsLoad : MonoBehaviour
         trackNr = _trackNr - 1;
     }
     
-    IEnumerator Func_PlayAnimUI(Image m_Image)
+    IEnumerator Func_PlayAnimUI(Image m_Image, Sprite[] m_SpriteArray)
     {
         yield return new WaitForSeconds(m_Speed);
         
@@ -125,19 +133,21 @@ public class CarStatsLoad : MonoBehaviour
         if (m_IndexSprite > m_SpriteArray.Length - 1)
         {
             m_IndexSprite = 0;
-            StopCoroutine(Func_PlayAnimUI(m_Image));
+            StopCoroutine(Func_PlayAnimUI(m_Image, m_SpriteArray));
         }
         
         if (IsDone == false)
         {
-            m_CorotineAnim = StartCoroutine(Func_PlayAnimUI(m_Image));
+            m_CorotineAnim = StartCoroutine(Func_PlayAnimUI(m_Image, m_SpriteArray));
         }
     }
 
     public void IsDoneFalse()
     {
         IsDone = false;
-        WinAnimationImage.sprite = m_SpriteArray[0];
+        WinAnimationImage.sprite = WinSpriteArray[0];
+        LoseAnimationImage.sprite = LoseSpriteArray[0];
+        TiedAnimationImage.sprite = TiedSpriteArray[0];
     }
 }
 
